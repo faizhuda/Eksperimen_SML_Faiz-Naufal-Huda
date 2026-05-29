@@ -1,0 +1,38 @@
+name: Preprocessing Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'WA_Fn-UseC_-Telco-Customer-Churn.csv'
+      - 'preprocessing/automate_Faiz-Naufal-Huda.py'
+  workflow_dispatch:
+
+jobs:
+  preprocess:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.7'
+
+      - name: Install dependencies
+        run: pip install pandas scikit-learn numpy
+
+      - name: Run preprocessing script
+        run: python preprocessing/automate_Faiz-Naufal-Huda.py
+
+      - name: Commit preprocessed dataset back to repo
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add preprocessing/telco_churn_preprocessed.csv
+          git diff --staged --quiet || git commit -m "ci: update preprocessed dataset [skip ci]"
+          git push
